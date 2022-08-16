@@ -105,9 +105,17 @@ export class APIService {
         }
         const target = path.join(convTargetFolder, `${file.id}-${file.name}`);
         console.log(chalk.blue(`           Downloading ${target}`));
-        const resp = await this.axios.get(file.url_private, { responseType: 'arraybuffer' });
-        await fsPromises.writeFile(target, resp.data);
-        console.log(chalk.blue(`           Downloaded ${target}`));
+        await this.axios.get(file.url_private, { responseType: 'arraybuffer' }).then(resp => {
+            fsPromises.writeFile(target, resp.data);
+        }).catch(error => {
+            console.log(error.response);
+        });
+
+    /*        await this.axios.get(file.url_private, { responseType: 'arraybuffer' }).then(resp => {
+                //await fsPromises.writeFile(target, resp.data);
+                //console.log(chalk.blue(`           Downloaded ${target}`));    
+        })
+  */      
     }
 
     private async loadUsers(): Promise<void> {
