@@ -117,6 +117,9 @@ export class APIService {
         for (const u of this.users) {
             this.userMap[u.id] = u;
         }
+        const json = JSON.stringify(this.userMap);
+        const target = path.join(this.exportRoot, 'Users.json');
+        fsPromises.writeFile(target, json);
     }
 
     private async loadConversations(): Promise<void> {
@@ -265,6 +268,9 @@ export class APIService {
 
     private async writeMsgs(root: string, conv: Conversation, msgs: SimpleMsg[]) {
         const lines: string[] = [];
+        if (conv.name == undefined) {
+            conv.name = '_undefined_name';
+        }
         const target = path.join(root, `${conv.type}-${sanitize(conv.name as string)}_${format(new Date(), 'yyyy-MM-dd-HHmmss')}.txt`);
 
         for (const m of msgs) {
