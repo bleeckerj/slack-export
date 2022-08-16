@@ -120,10 +120,24 @@ export class APIService {
     }
 
     private async loadConversations(): Promise<void> {
-        const r = await this.web.conversations.list(
-            { types: 'public_channel, private_channel, mpim, im' }
-        );
-        this.conversations = r.channels as Conversation[];
+        
+        const paginate = await this.web.paginate('conversations.list', {types : 'public_channel, private_channel, mpim, im', limit : '600'} );
+        //console.log(chalk.greenBright(` list ${paginate}`));
+        for await (const page of paginate) {
+            //console.log(page);
+            //console.log(page.channels as Array<any>);
+            const p_channels = page.channels as Conversation[];
+            this.conversations = this.conversations.concat( p_channels );
+            // for (const c of this.conversations) {
+            //     console.log(c);
+            // }
+        }
+        console.log(chalk.greenBright(` channels ${this.conversations.length}`));
+        // const r = await this.web.conversations.list(
+        //     //{ types: 'public_channel, private_channel, mpim, im' }
+        // );
+        //console.log(chalk.greenBright(` conversations ${r}`));
+        //this.conversations = r.channels as Conversation[];
         for (const c of this.conversations) {
             if (c.is_im) {
                 const user = this.users.find(x => c.user == x.id);
